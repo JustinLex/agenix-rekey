@@ -20,7 +20,7 @@
   # Collect rekeying options from all hosts
   mergeArray = f: unique (concatLists (mapAttrsToList (_: f) nodes));
   mergedAgePlugins = mergeArray (x: x.config.age.rekey.agePlugins or []);
-  rootIdentity = nodes.0.config.age.rekey.rootIdentity;
+  rootIdentity = (builtins.elemAt nodes 0).config.age.rekey.rootIdentity;
   mergedExtraEncryptionPubkeys = mergeArray (x: x.config.age.rekey.extraEncryptionPubkeys or []);
   mergedSecrets = mergeArray (x: filter (y: y != null) (mapAttrsToList (_: s: s.rekeyFile) x.config.age.secrets));
 
