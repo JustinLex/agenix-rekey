@@ -39,8 +39,8 @@ in {
   inherit mergedSecrets;
 
   # Premade shell commands to encrypt and decrypt secrets
-  rageMasterEncrypt = "${envPath} ${pkgs.rage}/bin/rage -e -i ${rootIdentity}.pub ${extraEncryptionPubkeys}";
-  rageMasterDecrypt = "${envPath} ${pkgs.rage}/bin/rage -d -i ${rootIdentity}";
+  rageMasterEncrypt = "${envPath} ${pkgs.rage}/bin/rage -e -i ${escapeShellArg rootIdentity}.pub ${extraEncryptionPubkeys}";
+  rageMasterDecrypt = "${envPath} ${pkgs.rage}/bin/rage -d -i ${escapeShellArg rootIdentity}";
   rageHostEncrypt = hostAttrs: let
     hostPubkey = removeSuffix "\n" hostAttrs.config.age.rekey.hostPubkey;
   in "${envPath} ${pkgs.rage}/bin/rage -e ${pubkeyOpt hostPubkey}";
