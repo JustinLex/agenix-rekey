@@ -158,6 +158,7 @@ in {
   imports = [
     (mkRenamedOptionModule ["rekey" "forceRekeyOnSystem"] ["age" "rekey" "forceRekeyOnSystem"])
     (mkRenamedOptionModule ["rekey" "hostPubkey"] ["age" "rekey" "hostPubkey"])
+    (mkRenamedOptionModule ["rekey" "rootIdentity"] ["age" "rekey" "rootIdentity"])
     (mkRenamedOptionModule ["rekey" "extraEncryptionPubkeys"] ["age" "rekey" "extraEncryptionPubkeys"])
     (mkRenamedOptionModule ["rekey" "agePlugins"] ["age" "rekey" "agePlugins"])
     ({
