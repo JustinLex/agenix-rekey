@@ -64,7 +64,6 @@ in
         }
       ''
       + flip concatMapStrings (attrValues secretsToRekey) (secret: ''
-        ensure_exists ${cachePathFor secret}
         cp -v ${cachePathFor secret} "$out/"${escapeShellArg "${secret.name}.age"}
       '')
       + ''
