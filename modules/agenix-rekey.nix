@@ -158,7 +158,6 @@ in {
   imports = [
     (mkRenamedOptionModule ["rekey" "forceRekeyOnSystem"] ["age" "rekey" "forceRekeyOnSystem"])
     (mkRenamedOptionModule ["rekey" "hostPubkey"] ["age" "rekey" "hostPubkey"])
-    (mkRenamedOptionModule ["rekey" "rootIdentity"] ["age" "rekey" "rootIdentity"])
     (mkRenamedOptionModule ["rekey" "extraEncryptionPubkeys"] ["age" "rekey" "extraEncryptionPubkeys"])
     (mkRenamedOptionModule ["rekey" "agePlugins"] ["age" "rekey" "agePlugins"])
     ({
@@ -367,9 +366,6 @@ in {
         #example = "age1qyqszqgpqyqszqgpqyqszqgpqyqszqgpqyqszqgpqyqszqgpqyqs3290gq";
         example = literalExpression "./secrets/host1.pub";
         #example = "/etc/ssh/ssh_host_ed25519_key.pub";
-      };
-      rootIdentity = mkOption {
-        type = types.str;
       };
       extraEncryptionPubkeys = mkOption {
         type = with types; listOf (coercedTo path toString str);
