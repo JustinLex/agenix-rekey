@@ -20,7 +20,7 @@
   # Collect rekeying options from all hosts
   mergeArray = f: unique (concatLists (mapAttrsToList (_: f) nodes));
   mergedAgePlugins = mergeArray (x: x.config.age.rekey.agePlugins or []);
-  mergedMasterIdentities = mergeArray (x: x.config.age.rekey.masterIdentities or []);
+  rootIdentity = nodes.0.config.age.rekey.rootIdentity;
   mergedExtraEncryptionPubkeys = mergeArray (x: x.config.age.rekey.extraEncryptionPubkeys or []);
   mergedSecrets = mergeArray (x: filter (y: y != null) (mapAttrsToList (_: s: s.rekeyFile) x.config.age.secrets));
 
@@ -32,8 +32,6 @@
 
   # Collect all paths to enabled age plugins
   envPath = ''PATH="$PATH"${concatMapStrings (x: ":${escapeShellArg x}/bin") mergedAgePlugins}'';
-  # The identities which can decrypt secrets need to be passed to rage
-  masterIdentityArgs = concatMapStrings (x: "-i ${escapeShellArg x} ") mergedMasterIdentities;
   # Extra recipients for master encrypted secrets
   extraEncryptionPubkeys = concatStringsSep " " (map pubkeyOpt mergedExtraEncryptionPubkeys);
 in {
@@ -41,8 +39,8 @@ in {
   inherit mergedSecrets;
 
   # Premade shell commands to encrypt and decrypt secrets
-  rageMasterEncrypt = "${envPath} ${pkgs.rage}/bin/rage -e ${masterIdentityArgs} ${extraEncryptionPubkeys}";
-  rageMasterDecrypt = "${envPath} ${pkgs.rage}/bin/rage -d ${masterIdentityArgs}";
+  rageMasterEncrypt = "${envPath} ${pkgs.rage}/bin/rage -e -i ${rootIdentity}.pub ${extraEncryptionPubkeys}";
+  rageMasterDecrypt = "${envPath} ${pkgs.rage}/bin/rage -d -i ${rootIdentity}";
   rageHostEncrypt = hostAttrs: let
     hostPubkey = removeSuffix "\n" hostAttrs.config.age.rekey.hostPubkey;
   in "${envPath} ${pkgs.rage}/bin/rage -e ${pubkeyOpt hostPubkey}";

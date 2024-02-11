@@ -134,17 +134,7 @@ nixpkgs: {
 in {
   config = {
     assertions =
-      [
-        {
-          assertion = config.age.rekey.masterIdentities != [];
-          message = "rekey.masterIdentities must be set.";
-        }
-        {
-          assertion = all isAbsolutePath config.age.rekey.masterIdentities;
-          message = "All masterIdentities must be referred to by an absolute path, but (${filter isAbsolutePath config.age.rekey.masterIdentities}) is not.";
-        }
-      ]
-      ++ flatten (flip mapAttrsToList config.age.secrets
+      flatten (flip mapAttrsToList config.age.secrets
         (secretName: secretCfg: [
           {
             assertion = isString secretCfg.generator -> hasAttr secretCfg.generator config.age.generators;
@@ -156,23 +146,7 @@ in {
           }
         ]));
 
-    warnings = let
-      hasGoodSuffix = x: (hasPrefix builtins.storeDir x) -> (hasSuffix ".age" x || hasSuffix ".pub" x);
-    in
-      optional (!all hasGoodSuffix config.age.rekey.masterIdentities) ''
-        At least one of your rekey.masterIdentities references an unencrypted age identity in your nix store!
-        ${concatMapStrings (x: "  - ${x}\n") (filter hasGoodSuffix config.age.rekey.masterIdentities)}
-
-        These files have already been copied to the nix store, and are now publicly readable!
-        Please make sure they don't contain any secret information or delete them now.
-
-        To silence this warning, you may:
-          - Use a split-identity ending in `.pub`, where the private part is not contained (a yubikey identity)
-          - Use an absolute path to your key outside of the nix store ("/home/myuser/age-master-key")
-          - Or encrypt your age identity and use the extension `.age`. You can encrypt an age identity
-            using `rage -p -o privkey.age privkey` which protects it in your store.
-      ''
-      ++ optional (config.age.rekey.hostPubkey == dummyPubkey) ''
+    warnings = optional (config.age.rekey.hostPubkey == dummyPubkey) ''
         You have not yet specified rekey.hostPubkey for your host ${config.networking.hostName}.
         All secrets for this host will be rekeyed with a dummy key, resulting in an activation failure.
 
@@ -184,7 +158,6 @@ in {
   imports = [
     (mkRenamedOptionModule ["rekey" "forceRekeyOnSystem"] ["age" "rekey" "forceRekeyOnSystem"])
     (mkRenamedOptionModule ["rekey" "hostPubkey"] ["age" "rekey" "hostPubkey"])
-    (mkRenamedOptionModule ["rekey" "masterIdentities"] ["age" "rekey" "masterIdentities"])
     (mkRenamedOptionModule ["rekey" "extraEncryptionPubkeys"] ["age" "rekey" "extraEncryptionPubkeys"])
     (mkRenamedOptionModule ["rekey" "agePlugins"] ["age" "rekey" "agePlugins"])
     ({
@@ -394,28 +367,8 @@ in {
         example = literalExpression "./secrets/host1.pub";
         #example = "/etc/ssh/ssh_host_ed25519_key.pub";
       };
-      masterIdentities = mkOption {
-        type = with types; listOf (coercedTo path toString str);
-        description = ''
-          The list of age identities that will be presented to `rage` when decrypting the stored secrets
-          to rekey them for your host(s). If multiple identities are given, they will be tried in-order.
-
-          The recommended options are:
-
-          - Use a split-identity ending in `.pub`, where the private part is not contained (a yubikey identity)
-          - Use an absolute path to your key outside of the nix store ("/home/myuser/age-master-key")
-          - Or encrypt your age identity and use the extension `.age`. You can encrypt an age identity
-            using `rage -p -o privkey.age privkey` which protects it in your store.
-
-          If you are using YubiKeys, you can specify multiple split-identities here and use them interchangeably.
-          You will have the option to skip any YubiKeys that are not available to you in that moment.
-
-          Be careful when using paths here, as they will be copied to the nix store. Using
-          split-identities is fine, but if you are using plain age identities, make sure that they
-          are password protected.
-        '';
-        default = [];
-        example = [./secrets/my-public-yubikey-identity.txt];
+      rootIdentity = mkOption {
+        type = with types; coercedTo path toString str;
       };
       extraEncryptionPubkeys = mkOption {
         type = with types; listOf (coercedTo path toString str);
