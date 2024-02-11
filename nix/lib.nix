@@ -39,7 +39,7 @@ in {
   inherit mergedSecrets;
 
   # Premade shell commands to encrypt and decrypt secrets
-  rageMasterEncrypt = "${envPath} ${pkgs.rage}/bin/rage -e -i /home/jlh/.ssh/id_ed25519.pub ${extraEncryptionPubkeys}";
+  rageMasterEncrypt = "${envPath} ${pkgs.rage}/bin/rage -e -i /home/jlh/.ssh/id_ed25519 ${extraEncryptionPubkeys}";
   rageMasterDecrypt = "${envPath} ${pkgs.rage}/bin/rage -d -i /home/jlh/.ssh/id_ed25519";
   rageHostEncrypt = hostAttrs: let
     hostPubkey = removeSuffix "\n" hostAttrs.config.age.rekey.hostPubkey;
