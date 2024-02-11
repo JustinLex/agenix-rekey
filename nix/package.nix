@@ -18,12 +18,6 @@
     echo '  generate                Automatically generates secrets that have generators'
   }
 
-  USER_FLAKE_DIR=$(git rev-parse --show-toplevel 2>/dev/null || pwd) \
-    || die "Could not determine current working directory. Something went very wrong."
-  [[ -e "$USER_FLAKE_DIR/flake.nix" ]] \
-    || die "Could not determine location of your project's flake.nix. Please run this at or below your main directory containing the flake.nix."
-  cd "$USER_FLAKE_DIR"
-
   [[ $# -gt 0 ]] || {
     show_help
     exit 1
