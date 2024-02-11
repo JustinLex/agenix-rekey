@@ -368,7 +368,7 @@ in {
         #example = "/etc/ssh/ssh_host_ed25519_key.pub";
       };
       rootIdentity = mkOption {
-        type = with types; coercedTo path toString str;
+        type = types.str;
       };
       extraEncryptionPubkeys = mkOption {
         type = with types; listOf (coercedTo path toString str);
